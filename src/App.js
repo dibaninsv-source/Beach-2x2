@@ -20,11 +20,11 @@ const T = {
     recordMatch: "🏐 ЗАПИСАТЬ МАТЧ", date: "ДАТА",
     team1: "КОМАНДА 1", team2: "КОМАНДА 2",
     player1: "Игрок 1", player2: "Игрок 2",
-    noTie: "{t.noTie}",
+    noTie: "⚠️ Ничья не допускается",
     saveMatch: "✓ Сохранить матч", sendReview: "⏳ Отправить на проверку",
     pending: "⏳ На проверке", pendingLabel: "⏳ Ждут проверки:",
-    pendingDesc: "{t.pendingDesc}", approveAll: "✓ Все OK",
-    approveOne: "✓ OK", edit: "✏️", noMatches: "{t.noMatches}",
+    pendingDesc: "Игры добавленные игроками", approveAll: "✓ Все OK",
+    approveOne: "✓ OK", edit: "✏️", noMatches: "Нет матчей. Запишите первый!",
     tabGame: "⚡ Игра", tabStats: "📊 Статы", tabHistory: "📋 История",
     allTime: "Всё время", totalMatches: "Всего матчей", matchesOf: "Матчей",
     wins: "ПОБЕДЫ", losses: "ПОРАЖ.", games: "ИГРЫ", scored: "ЗАБИЛ", conceded: "ПРОП.",
@@ -32,7 +32,7 @@ const T = {
     rankGames: t.rankGames, rankGamesHint: "Кто больше выиграл игр",
     rankKing: t.rankKing, rankKingHint: "Кто больше в ±очков",
     period: "ПЕРИОД", periodHint: "· ℹ️ для деталей дня",
-    noPlayers: "{t.noPlayers}",
+    noPlayers: "Добавь игроков на вкладке «Игра»",
     roster: "👥 СОСТАВ КОМАНДЫ",
     trophyBoard: "🏆 Доска наград", gamesWinner: "= Games победитель", kingWinner: "= King победитель",
     noAwards: "нет наград", dayResults: "ИТОГИ ДНЯ",
@@ -40,10 +40,10 @@ const T = {
     adminBtn: "🔑 Админ", adminTitle: "Вход для администратора",
     adminPw: "Введите пароль", wrongPw: "Неверный пароль",
     cancel: "Отмена", enter: "Войти", logout: "выйти",
-    deleteTitle: "{t.deleteTitle}", deleteDesc: "{t.deleteDesc}",
+    deleteTitle: "Удалить игрока?", deleteDesc: "будет удалён из команды",
     deleteBtn: "Удалить", photoTitle: "Фото профиля",
     uploadPhoto: "📷 Загрузить фото", deletePhoto: "🗑 Удалить фото",
-    editMatch: "✏️ Редактировать матч", videoLink: "t.videoLink, loading: "Загрузка данных...",
+    editMatch: "✏️ Редактировать матч", videoLink: "+ видео", loading: "Загрузка данных...",
     matches: "матчей", players: "игроков",
   },
   lv: {
@@ -828,8 +828,8 @@ export default function App() {
         {tab==="stats"&&(<>
           <div style={{...card,padding:"10px 12px"}}>
             <div style={{display:"flex",gap:6,marginBottom:10}}>
-              {[["games",t.rankGames,"t.rankGamesHint,C.green],
-                ["king",t.rankKing,"t.rankKingHint,C.king]].map(([mode,label,hint,ac])=>{
+              {[["games",t.rankGames,t.rankGamesHint,C.green],
+                ["king",t.rankKing,t.rankKingHint,C.king]].map(([mode,label,hint,ac])=>{
                 const on=rankMode===mode;
                 return (
                   <div key={mode} onClick={()=>setRankMode(mode)} style={{
@@ -991,7 +991,7 @@ export default function App() {
                       <button onClick={()=>{setEditingLinkDay(day);setLinkInput(link||"");}}
                         style={{background:"none",border:"1px solid "+C.border,borderRadius:20,
                           padding:"3px 8px",color:C.sub,fontSize:10,cursor:"pointer",whiteSpace:"nowrap"}}>
-                        {link?"✏️":"t.videoLink}
+                        {link?"✏️":t.videoLink}
                       </button>
                     )
                   )}
