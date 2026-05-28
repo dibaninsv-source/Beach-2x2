@@ -11,6 +11,111 @@ const ADMIN_PASSWORD = "132333";
 const AVATAR_COLORS = ["#FF6B35","#F7C948","#2EC4B6","#E94F7C","#6C63FF","#3DDC97","#FF9F1C","#00B4D8","#EF476F","#06D6A0"];
 const avatarColor = name => AVATAR_COLORS[(name.charCodeAt(0)+name.length) % AVATAR_COLORS.length];
 
+const T = {
+  ru: {
+    appSub: "матчей · игроков",
+    addPlayer: "ДОБАВИТЬ ИГРОКА", playerPlaceholder: "Имя игрока",
+    playing: "КТО ИГРАЕТ СЕГОДНЯ", viewOnly: "· просмотр",
+    suggestions: "💡 ВАРИАНТЫ ПАР",
+    recordMatch: "🏐 ЗАПИСАТЬ МАТЧ", date: "ДАТА",
+    team1: "КОМАНДА 1", team2: "КОМАНДА 2",
+    player1: "Игрок 1", player2: "Игрок 2",
+    noTie: "{t.noTie}",
+    saveMatch: "✓ Сохранить матч", sendReview: "⏳ Отправить на проверку",
+    pending: "⏳ На проверке", pendingLabel: "⏳ Ждут проверки:",
+    pendingDesc: "{t.pendingDesc}", approveAll: "✓ Все OK",
+    approveOne: "✓ OK", edit: "✏️", noMatches: "{t.noMatches}",
+    tabGame: "⚡ Игра", tabStats: "📊 Статы", tabHistory: "📋 История",
+    allTime: "Всё время", totalMatches: "Всего матчей", matchesOf: "Матчей",
+    wins: "ПОБЕДЫ", losses: "ПОРАЖ.", games: "ИГРЫ", scored: "ЗАБИЛ", conceded: "ПРОП.",
+    winRate: "побед", game1: "игра", game24: "игры", game5: "игр",
+    rankGames: t.rankGames, rankGamesHint: "Кто больше выиграл игр",
+    rankKing: t.rankKing, rankKingHint: "Кто больше в ±очков",
+    period: "ПЕРИОД", periodHint: "· ℹ️ для деталей дня",
+    noPlayers: "{t.noPlayers}",
+    roster: "👥 СОСТАВ КОМАНДЫ",
+    trophyBoard: "🏆 Доска наград", gamesWinner: "= Games победитель", kingWinner: "= King победитель",
+    noAwards: "нет наград", dayResults: "ИТОГИ ДНЯ",
+    victory: "🏆 ПОБЕДА", adminMode: "🔑 Режим Админа", viewMode: "👁 Просмотр",
+    adminBtn: "🔑 Админ", adminTitle: "Вход для администратора",
+    adminPw: "Введите пароль", wrongPw: "Неверный пароль",
+    cancel: "Отмена", enter: "Войти", logout: "выйти",
+    deleteTitle: "{t.deleteTitle}", deleteDesc: "{t.deleteDesc}",
+    deleteBtn: "Удалить", photoTitle: "Фото профиля",
+    uploadPhoto: "📷 Загрузить фото", deletePhoto: "🗑 Удалить фото",
+    editMatch: "✏️ Редактировать матч", videoLink: "t.videoLink, loading: "Загрузка данных...",
+    matches: "матчей", players: "игроков",
+  },
+  lv: {
+    appSub: "spēles · spēlētāji",
+    addPlayer: "PIEVIENOT SPĒLĒTĀJU", playerPlaceholder: "Spēlētāja vārds",
+    playing: "KAS SPĒLĒ ŠODIEN", viewOnly: "· skatīties",
+    suggestions: "💡 KOMANDU VARIANTI",
+    recordMatch: "🏐 IERAKSTĪT SPĒLI", date: "DATUMS",
+    team1: "KOMANDA 1", team2: "KOMANDA 2",
+    player1: "Spēlētājs 1", player2: "Spēlētājs 2",
+    noTie: "⚠️ Neizšķirts nav atļauts",
+    saveMatch: "✓ Saglabāt spēli", sendReview: "⏳ Nosūtīt pārbaudei",
+    pending: "⏳ Pārbaude", pendingLabel: "⏳ Gaida pārbaudi:",
+    pendingDesc: "Spēles pievienotas spēlētājiem", approveAll: "✓ Viss OK",
+    approveOne: "✓ OK", edit: "✏️", noMatches: "Nav spēļu. Ierakstiet pirmo!",
+    tabGame: "⚡ Spēle", tabStats: "📊 Statistika", tabHistory: "📋 Vēsture",
+    allTime: "Viss laiks", totalMatches: "Kopā spēles", matchesOf: "Spēles",
+    wins: "UZVARAS", losses: "ZAUD.", games: "SPĒLES", scored: "IEMESTI", conceded: "IELAISTI",
+    winRate: "uzvaras", game1: "spēle", game24: "spēles", game5: "spēles",
+    rankGames: t.rankGames, rankGamesHint: "Kurš uzvarēja vairāk spēļu",
+    rankKing: t.rankKing, rankKingHint: "Kurš ir vairāk ±punktos",
+    period: "PERIODS", periodHint: "· ℹ️ dienas detaļām",
+    noPlayers: "Pievieno spēlētājus cilnē «Spēle»",
+    roster: "👥 KOMANDAS SASTĀVS",
+    trophyBoard: "🏆 Apbalvojumu dēlis", gamesWinner: "= Games uzvarētājs", kingWinner: "= King uzvarētājs",
+    noAwards: "nav apbalvojumu", dayResults: "DIENAS REZULTĀTI",
+    victory: "🏆 UZVARA", adminMode: "🔑 Admin režīms", viewMode: "👁 Skatīties",
+    adminBtn: "🔑 Admin", adminTitle: "Administratora ieeja",
+    adminPw: "Ievadiet paroli", wrongPw: "Nepareiza parole",
+    cancel: "Atcelt", enter: "Ienākt", logout: "iziet",
+    deleteTitle: "Dzēst spēlētāju?", deleteDesc: "tiks dzēsts no komandas",
+    deleteBtn: "Dzēst", photoTitle: "Profila foto",
+    uploadPhoto: "📷 Augšupielādēt foto", deletePhoto: "🗑 Dzēst foto",
+    editMatch: "✏️ Rediģēt spēli", videoLink: "+ video", loading: "Datu ielāde...",
+    matches: "spēles", players: "spēlētāji",
+  },
+  en: {
+    appSub: "matches · players",
+    addPlayer: "ADD PLAYER", playerPlaceholder: "Player name",
+    playing: "WHO PLAYS TODAY", viewOnly: "· view only",
+    suggestions: "💡 PAIR OPTIONS",
+    recordMatch: "🏐 RECORD MATCH", date: "DATE",
+    team1: "TEAM 1", team2: "TEAM 2",
+    player1: "Player 1", player2: "Player 2",
+    noTie: "⚠️ Tie not allowed",
+    saveMatch: "✓ Save match", sendReview: "⏳ Send for review",
+    pending: "⏳ Pending", pendingLabel: "⏳ Awaiting review:",
+    pendingDesc: "Matches added by players", approveAll: "✓ All OK",
+    approveOne: "✓ OK", edit: "✏️", noMatches: "No matches. Record the first!",
+    tabGame: "⚡ Game", tabStats: "📊 Stats", tabHistory: "📋 History",
+    allTime: "All time", totalMatches: "Total matches", matchesOf: "Matches",
+    wins: "WINS", losses: "LOSSES", games: "GAMES", scored: "SCORED", conceded: "CONCEDED",
+    winRate: "wins", game1: "game", game24: "games", game5: "games",
+    rankGames: t.rankGames, rankGamesHint: "Who won most games",
+    rankKing: t.rankKing, rankKingHint: "Who has best ±points",
+    period: "PERIOD", periodHint: "· ℹ️ for day details",
+    noPlayers: "Add players in the «Game» tab",
+    roster: "👥 TEAM ROSTER",
+    trophyBoard: "🏆 Trophy Board", gamesWinner: "= Games winner", kingWinner: "= King winner",
+    noAwards: "no awards", dayResults: "DAY RESULTS",
+    victory: "🏆 WIN", adminMode: "🔑 Admin Mode", viewMode: "👁 View",
+    adminBtn: "🔑 Admin", adminTitle: "Administrator login",
+    adminPw: "Enter password", wrongPw: "Wrong password",
+    cancel: "Cancel", enter: "Login", logout: "logout",
+    deleteTitle: "Delete player?", deleteDesc: "will be removed from team",
+    deleteBtn: "Delete", photoTitle: "Profile photo",
+    uploadPhoto: "📷 Upload photo", deletePhoto: "🗑 Remove photo",
+    editMatch: "✏️ Edit match", videoLink: "+ video", loading: "Loading...",
+    matches: "matches", players: "players",
+  }
+};
+
 const C = {
   bg:"#0D0D1A", card:"#161626", cardHi:"#1E1E35", border:"#2A2A45",
   sand:"#F7C948", sky:"#2EC4B6", red:"#FF6B6B", green:"#3DDC97",
@@ -159,7 +264,7 @@ function EditMatchPopup({ match, players, onSave, onClose }) {
         onClick={e=>e.stopPropagation()}>
         <div style={{fontSize:13,fontWeight:800,color:C.sand,marginBottom:14}}>✏️ Редактировать матч</div>
         <div style={{background:C.cardHi,borderRadius:10,padding:10,marginBottom:8,borderLeft:"3px solid "+C.sky}}>
-          <div style={{...lbl,color:C.sky,marginBottom:6}}>КОМАНДА 1</div>
+          <div style={{...lbl,color:C.sky,marginBottom:6}}>{t.team1}</div>
           <div style={{display:"flex",gap:6}}>
             <select style={{...ss,flex:1}} value={t1p1} onChange={e=>setT1p1(e.target.value)}>
               {players.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
@@ -170,7 +275,7 @@ function EditMatchPopup({ match, players, onSave, onClose }) {
           </div>
         </div>
         <div style={{background:C.cardHi,borderRadius:10,padding:10,marginBottom:12,borderLeft:"3px solid "+C.red}}>
-          <div style={{...lbl,color:C.red,marginBottom:6}}>КОМАНДА 2</div>
+          <div style={{...lbl,color:C.red,marginBottom:6}}>{t.team2}</div>
           <div style={{display:"flex",gap:6}}>
             <select style={{...ss,flex:1}} value={t2p1} onChange={e=>setT2p1(e.target.value)}>
               {players.filter(p=>![t1p1,t1p2].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
@@ -344,7 +449,7 @@ function LoadingScreen() {
       <div style={{fontSize:20,fontWeight:900,color:C.text,marginBottom:8}}>
         Beach <span style={{color:C.sand}}>2×2</span>
       </div>
-      <div style={{fontSize:13,color:C.sub}}>Загрузка данных...</div>
+      <div style={{fontSize:13,color:C.sub}}>Loading...</div>
     </div>
   );
 }
@@ -354,6 +459,11 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminPopup, setShowAdminPopup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [lang, setLang] = useState("ru");
+  const t = T[lang];
+
+
+
 
   // Firebase state
   const [players, setPlayers] = useState([]);
@@ -483,7 +593,7 @@ export default function App() {
   if(loading) return <LoadingScreen/>;
 
   return (
-    <div style={{background:C.bg,minHeight:"100vh",maxWidth:430,margin:"0 auto",
+    <div style={{background:C.bg,minHeight:"100vh",width:"100%",maxWidth:430,margin:"0 auto",
       fontFamily:"'Outfit',sans-serif",color:C.text,display:"flex",flexDirection:"column"}}>
 
       {showAdminPopup&&<AdminPopup onSuccess={()=>{setIsAdmin(true);setShowAdminPopup(false);}} onClose={()=>setShowAdminPopup(false)}/>}
@@ -502,14 +612,14 @@ export default function App() {
           <div style={{background:"#161626",borderRadius:16,padding:22,width:"100%",maxWidth:300,
             border:"1px solid "+C.border,boxShadow:"0 24px 60px #000"}} onClick={e=>e.stopPropagation()}>
             <div style={{fontSize:22,textAlign:"center",marginBottom:8}}>⚠️</div>
-            <div style={{fontSize:14,fontWeight:800,textAlign:"center",marginBottom:8}}>Удалить игрока?</div>
+            <div style={{fontSize:14,fontWeight:800,textAlign:"center",marginBottom:8}}>{t.deleteTitle}</div>
             <div style={{fontSize:12,color:C.sub,textAlign:"center",marginBottom:18}}>
-              {players.find(p=>p.id===deleteConfirm)?.name} будет удалён из команды
+              {players.find(p=>p.id===deleteConfirm)?.name} {t.deleteDesc}
             </div>
             <div style={{display:"flex",gap:8}}>
-              <button onClick={()=>setDeleteConfirm(null)} style={{...btn(C.cardHi),flex:1,color:C.sub,border:"1px solid "+C.border}}>Отмена</button>
+              <button onClick={()=>setDeleteConfirm(null)} style={{...btn(C.cardHi),flex:1,color:C.sub,border:"1px solid "+C.border}}>{t.cancel}</button>
               <button onClick={async()=>{await fbDeletePlayer(deleteConfirm);setSessionIds(ids=>ids.filter(id=>id!==deleteConfirm));setDeleteConfirm(null);}}
-                style={{...btn(C.red),flex:1}}>Удалить</button>
+                style={{...btn(C.red),flex:1}}>{t.deleteBtn}</button>
             </div>
           </div>
         </div>
@@ -517,45 +627,58 @@ export default function App() {
 
       {/* HEADER */}
       <div style={{background:"linear-gradient(135deg,#0D0D1A,#1a1a35)",
-        padding:"14px 16px 10px",borderBottom:"1px solid "+C.border}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        padding:"10px 16px 8px",borderBottom:"1px solid "+C.border}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <img src="/icon.jpg" alt="Beach 2x2" style={{width:36,height:36,borderRadius:8,objectFit:"cover"}}/>
+            <img src="/icon.jpg" alt="Beach 2x2"
+              style={{width:38,height:38,borderRadius:10,objectFit:"cover",flexShrink:0}}/>
             <div>
               <div style={{fontSize:17,fontWeight:900,letterSpacing:-0.5}}>
                 Beach <span style={{color:C.sand}}>2×2</span>
               </div>
-              <div style={{fontSize:11,color:C.sub}}>{matches.length} матчей · {players.length} игроков</div>
+              <div style={{fontSize:10,color:C.sub}}>{matches.length} {t.matches} · {players.length} {t.players}</div>
             </div>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <div style={{display:"flex",alignItems:"center",gap:6}}>
             <button onClick={()=>setShowTrophies(true)}
               style={{background:C.cardHi,border:"1px solid "+C.border,borderRadius:20,
-                padding:"5px 10px",color:C.sand,fontSize:13,cursor:"pointer",fontWeight:700}}>🏆</button>
+                padding:"5px 8px",color:C.sand,fontSize:12,cursor:"pointer",fontWeight:700}}>🏆</button>
             {isAdmin?(
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
                 {pendingCount>0&&(
                   <div style={{fontSize:10,fontWeight:800,color:C.pending,background:C.pending+"22",
-                    border:"1px solid "+C.pending+"55",borderRadius:20,padding:"3px 8px",cursor:"pointer"}}
-                    onClick={()=>setTab("history")}>⏳ {pendingCount}</div>
+                    border:"1px solid "+C.pending+"55",borderRadius:20,padding:"3px 7px",cursor:"pointer"}}
+                    onClick={()=>setTab("history")}>⏳{pendingCount}</div>
                 )}
                 <div style={{fontSize:10,fontWeight:700,color:C.sand,background:C.sand+"22",
-                  border:"1px solid "+C.sand+"55",borderRadius:20,padding:"3px 10px"}}>🔑 ADMIN</div>
+                  border:"1px solid "+C.sand+"55",borderRadius:20,padding:"3px 8px"}}>🔑 ADMIN</div>
                 <button onClick={()=>setIsAdmin(false)}
-                  style={{background:"none",border:"none",color:C.sub,fontSize:11,cursor:"pointer"}}>выйти</button>
+                  style={{background:"none",border:"none",color:C.sub,fontSize:10,cursor:"pointer"}}>{t.logout}</button>
               </div>
             ):(
               <button onClick={()=>setShowAdminPopup(true)}
                 style={{background:C.cardHi,border:"1px solid "+C.border,borderRadius:20,
-                  padding:"5px 12px",color:C.sub,fontSize:12,fontWeight:700,cursor:"pointer"}}>🔑 Админ</button>
+                  padding:"5px 10px",color:C.sub,fontSize:11,fontWeight:700,cursor:"pointer"}}>{t.adminBtn}</button>
             )}
           </div>
+        </div>
+        <div style={{display:"flex",gap:6}}>
+          {[["ru","🇷🇺 RU"],["lv","🇱🇻 LV"],["en","🇬🇧 EN"]].map(([code,label])=>(
+            <button key={code} onClick={()=>setLang(code)}
+              style={{background:lang===code?C.sand+"22":C.cardHi,
+                border:"1.5px solid "+(lang===code?C.sand:C.border),
+                borderRadius:20,padding:"3px 10px",
+                color:lang===code?C.sand:C.sub,fontSize:11,fontWeight:700,
+                cursor:"pointer"}}>
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* TABS */}
       <div style={{display:"flex",background:"#0D0D1A",borderBottom:"1px solid "+C.border}}>
-        {[["game","⚡ Игра"],["stats","📊 Статы"],["history","📋 История"]].map(([k,l])=>(
+        {[["game",t.tabGame],["stats",t.tabStats],["history",t.tabHistory]].map(([k,l])=>(
           <button key={k} style={tabStyle(tab===k)} onClick={()=>setTab(k)}>
             {l}{k==="history"&&pendingCount>0&&(
               <span style={{marginLeft:5,background:C.pending,color:"#fff",borderRadius:10,
@@ -570,9 +693,9 @@ export default function App() {
         {/* ══ GAME ══ */}
         {tab==="game"&&(<>
           <div style={card}>
-            <div style={lbl}>ДОБАВИТЬ ИГРОКА</div>
+            <div style={lbl}>{t.addPlayer}</div>
             <div style={{display:"flex",gap:8}}>
-              <input style={{...inp,flex:1}} placeholder="Имя игрока" value={newName}
+              <input style={{...inp,flex:1}} placeholder={t.playerPlaceholder} value={newName}
                 onChange={e=>setNewName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addPlayer()}/>
               <button style={btn(C.accent)} onClick={addPlayer}>+</button>
             </div>
@@ -580,7 +703,7 @@ export default function App() {
 
           {players.length>0&&(
             <div style={card}>
-              <div style={lbl}>КТО ИГРАЕТ СЕГОДНЯ ({sessionIds.length})</div>
+              <div style={lbl}>{t.playing} ({sessionIds.length})</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
                 {players.map(p=>{
                   const on=sessionIds.includes(p.id);
@@ -607,7 +730,7 @@ export default function App() {
 
           {suggestions.length>0&&(
             <div style={card}>
-              <div style={lbl}>💡 ВАРИАНТЫ ПАР</div>
+              <div style={lbl}>{t.suggestions}</div>
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {suggestions.map(([a,b,c,d],i)=>(
                   <div key={i} onClick={()=>(setT1p1(a.id),setT1p2(b.id),setT2p1(c.id),setT2p2(d.id))}
@@ -631,36 +754,36 @@ export default function App() {
 
           <div style={{...card,border:"1px solid "+(isAdmin?C.sand+"30":C.pending+"30")}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-              <div style={lbl}>🏐 ЗАПИСАТЬ МАТЧ</div>
+              <div style={lbl}>{t.recordMatch}</div>
               {!isAdmin&&<div style={{fontSize:10,color:C.pending,fontWeight:700,
-                background:C.pending+"22",borderRadius:10,padding:"2px 8px"}}>⏳ На проверке</div>}
+                background:C.pending+"22",borderRadius:10,padding:"2px 8px"}}>{t.pending}</div>}
             </div>
             <div style={{marginBottom:10}}>
-              <div style={{...lbl,marginBottom:4}}>ДАТА</div>
+              <div style={{...lbl,marginBottom:4}}>{t.date}</div>
               <input type="date" style={inp} value={matchDate} onChange={e=>setMatchDate(e.target.value)}/>
             </div>
             <div style={{background:C.cardHi,borderRadius:10,padding:10,marginBottom:8,borderLeft:"3px solid "+C.sky}}>
-              <div style={{...lbl,color:C.sky}}>КОМАНДА 1</div>
+              <div style={{...lbl,color:C.sky}}>{t.team1}</div>
               <div style={{display:"flex",gap:6}}>
                 <select style={{...sel,flex:1}} value={t1p1} onChange={e=>setT1p1(e.target.value)}>
-                  <option value="">Игрок 1</option>
+                  <option value="">{t.player1}</option>
                   {sessionPlayers.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
                 <select style={{...sel,flex:1}} value={t1p2} onChange={e=>setT1p2(e.target.value)}>
-                  <option value="">Игрок 2</option>
+                  <option value="">{t.player2}</option>
                   {sessionPlayers.filter(p=>p.id!==t1p1).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
             </div>
             <div style={{background:C.cardHi,borderRadius:10,padding:10,marginBottom:14,borderLeft:"3px solid "+C.red}}>
-              <div style={{...lbl,color:C.red}}>КОМАНДА 2</div>
+              <div style={{...lbl,color:C.red}}>{t.team2}</div>
               <div style={{display:"flex",gap:6}}>
                 <select style={{...sel,flex:1}} value={t2p1} onChange={e=>setT2p1(e.target.value)}>
-                  <option value="">Игрок 1</option>
+                  <option value="">{t.player1}</option>
                   {sessionPlayers.filter(p=>![t1p1,t1p2].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
                 <select style={{...sel,flex:1}} value={t2p2} onChange={e=>setT2p2(e.target.value)}>
-                  <option value="">Игрок 2</option>
+                  <option value="">{t.player2}</option>
                   {sessionPlayers.filter(p=>![t1p1,t1p2,t2p1].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
@@ -671,17 +794,17 @@ export default function App() {
               <ScoreInput val={score2} setVal={setScore2} color={C.red} label="КОМ. 2"/>
             </div>
             {score1!==""&&score2!==""&&parseInt(score1)===parseInt(score2)&&(
-              <div style={{textAlign:"center",color:C.sand,fontSize:12,marginBottom:8}}>⚠️ Ничья не допускается</div>
+              <div style={{textAlign:"center",color:C.sand,fontSize:12,marginBottom:8}}>{t.noTie}</div>
             )}
             <button style={{...btn(matchValid?(isAdmin?C.sand:C.pending):C.border),width:"100%",
               color:matchValid?"#0D0D1A":C.sub,opacity:matchValid?1:0.6}} onClick={saveMatch}>
-              {isAdmin?"✓ Сохранить матч":"⏳ Отправить на проверку"}
+              {isAdmin?t.saveMatch:t.sendReview}
             </button>
           </div>
 
           {players.length>0&&(
             <div style={card}>
-              <div style={{...lbl,marginBottom:10}}>👥 СОСТАВ КОМАНДЫ</div>
+              <div style={{...lbl,marginBottom:10}}>{t.roster}</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:14}}>
                 {players.map(p=>(
                   <div key={p.id} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5,width:56}}>
@@ -705,8 +828,8 @@ export default function App() {
         {tab==="stats"&&(<>
           <div style={{...card,padding:"10px 12px"}}>
             <div style={{display:"flex",gap:6,marginBottom:10}}>
-              {[["games","🏆 Games","Кто больше выиграл игр",C.green],
-                ["king","👑 King","Кто больше в ±очков",C.king]].map(([mode,label,hint,ac])=>{
+              {[["games",t.rankGames,"t.rankGamesHint,C.green],
+                ["king",t.rankKing,"t.rankKingHint,C.king]].map(([mode,label,hint,ac])=>{
                 const on=rankMode===mode;
                 return (
                   <div key={mode} onClick={()=>setRankMode(mode)} style={{
@@ -729,7 +852,7 @@ export default function App() {
                       background:on?C.sky+"33":C.cardHi,border:`1.5px solid ${on?C.sky:C.border}`,
                       fontSize:12,fontWeight:700,color:on?C.sky:C.sub,cursor:"pointer",whiteSpace:"nowrap",
                       borderRight:d!=="all"?"none":undefined}}>
-                      {d==="all"?"Всё время":fmtDate(d)}
+                      {d==="all"?t.allTime:fmtDate(d)}
                     </div>
                     {d!=="all"&&(
                       <div onClick={()=>setDayDetailDay(d)} style={{
@@ -747,7 +870,7 @@ export default function App() {
             <div style={{...card,background:C.cardHi,padding:"10px 16px",
               display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{fontSize:13,color:C.sub,fontWeight:600}}>
-                {dayFilter==="all"?"Всего матчей":`Матчей ${fmtDate(dayFilter)}`}
+                {dayFilter==="all"?dayFilter==="all"?t.totalMatches:`${t.matchesOf} ${fmtDate(dayFilter)}`}
               </div>
               <div style={{fontSize:22,fontWeight:900,color:C.sand}}>{filteredMatches.length}</div>
             </div>
@@ -756,7 +879,7 @@ export default function App() {
           {sortedPlayers.length===0&&(
             <div style={{textAlign:"center",color:C.sub,marginTop:60}}>
               <div style={{fontSize:48}}>🏖️</div>
-              <div style={{marginTop:8}}>Добавь игроков на вкладке «Игра»</div>
+              <div style={{marginTop:8}}>{t.noPlayers}</div>
             </div>
           )}
 
@@ -820,17 +943,17 @@ export default function App() {
             <div style={{...card,background:C.pending+"18",border:"1px solid "+C.pending+"55",
               display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div>
-                <div style={{fontSize:13,fontWeight:800,color:C.pending}}>⏳ Ждут проверки: {pendingCount}</div>
-                <div style={{fontSize:11,color:C.sub,marginTop:2}}>Игры добавленные игроками</div>
+                <div style={{fontSize:13,fontWeight:800,color:C.pending}}>{t.pendingLabel} {pendingCount}</div>
+                <div style={{fontSize:11,color:C.sub,marginTop:2}}>{t.pendingDesc}</div>
               </div>
-              <button onClick={approveAll} style={{...btn(C.pending,true),color:"#fff"}}>✓ Все OK</button>
+              <button onClick={approveAll} style={{...btn(C.pending,true),color:"#fff"}}>{t.approveAll}</button>
             </div>
           )}
 
           {matches.length===0&&(
             <div style={{textAlign:"center",color:C.sub,marginTop:60}}>
               <div style={{fontSize:48}}>📋</div>
-              <div style={{marginTop:8}}>Нет матчей. Запишите первый!</div>
+              <div style={{marginTop:8}}>{t.noMatches}</div>
             </div>
           )}
 
@@ -868,7 +991,7 @@ export default function App() {
                       <button onClick={()=>{setEditingLinkDay(day);setLinkInput(link||"");}}
                         style={{background:"none",border:"1px solid "+C.border,borderRadius:20,
                           padding:"3px 8px",color:C.sub,fontSize:10,cursor:"pointer",whiteSpace:"nowrap"}}>
-                        {link?"✏️":"+ видео"}
+                        {link?"✏️":"t.videoLink}
                       </button>
                     )
                   )}
@@ -882,13 +1005,13 @@ export default function App() {
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
                         {m.pending?(
                           <div style={{fontSize:10,fontWeight:800,color:C.pending,
-                            background:C.pending+"22",borderRadius:10,padding:"2px 8px"}}>⏳ На проверке</div>
+                            background:C.pending+"22",borderRadius:10,padding:"2px 8px"}}>{t.pending}</div>
                         ):<div/>}
                         {isAdmin&&(
                           <div style={{display:"flex",gap:6,alignItems:"center"}}>
                             {m.pending&&(
                               <button onClick={()=>approveMatch(m.id)}
-                                style={{...btn(C.green,true),fontSize:10,padding:"3px 10px"}}>✓ OK</button>
+                                style={{...btn(C.green,true),fontSize:10,padding:"3px 10px"}}>{t.approveOne}</button>
                             )}
                             <button onClick={()=>setEditingMatch(m)}
                               style={{background:"none",border:"1px solid "+C.border,borderRadius:6,
@@ -940,13 +1063,15 @@ export default function App() {
         display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <span style={{fontSize:11,color:C.sub}}>🏖️ Beach 2×2</span>
         <span style={{fontSize:11,color:isAdmin?C.sand:C.sub,fontWeight:700}}>
-          {isAdmin?"🔑 Режим Админа":"👁 Просмотр"}
+          {isAdmin?t.adminMode:t.viewMode}
         </span>
       </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&display=swap');
-        * { box-sizing:border-box; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        html, body, #root { width:100%; min-height:100vh; background:#0D0D1A; }
+        body { overflow-x:hidden; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; }
         input::placeholder { color:#7070A0; }
         select option { background:#161626; }
