@@ -29,8 +29,8 @@ const T = {
     allTime: "Всё время", totalMatches: "Всего матчей", matchesOf: "Матчей",
     wins: "ПОБЕДЫ", losses: "ПОРАЖ.", games: "ИГРЫ", scored: "ЗАБИЛ", conceded: "ПРОП.",
     winRate: "побед", game1: "игра", game24: "игры", game5: "игр",
-    rankGames: t.rankGames, rankGamesHint: "Кто больше выиграл игр",
-    rankKing: t.rankKing, rankKingHint: "Кто больше в ±очков",
+    rankGames: "🏐 Игры", rankGamesHint: "Кто больше выиграл игр",
+    rankKing: "👑 Король", rankKingHint: "Кто больше в ±очков",
     period: "ПЕРИОД", periodHint: "· ℹ️ для деталей дня",
     noPlayers: "Добавь игроков на вкладке «Игра»",
     roster: "👥 СОСТАВ КОМАНДЫ",
@@ -63,8 +63,8 @@ const T = {
     allTime: "Viss laiks", totalMatches: "Kopā spēles", matchesOf: "Spēles",
     wins: "UZVARAS", losses: "ZAUD.", games: "SPĒLES", scored: "IEMESTI", conceded: "IELAISTI",
     winRate: "uzvaras", game1: "spēle", game24: "spēles", game5: "spēles",
-    rankGames: t.rankGames, rankGamesHint: "Kurš uzvarēja vairāk spēļu",
-    rankKing: t.rankKing, rankKingHint: "Kurš ir vairāk ±punktos",
+    rankGames: "🏐 Spēles", rankGamesHint: "Kurš uzvarēja vairāk spēļu",
+    rankKing: "👑 Karalis", rankKingHint: "Kurš ir vairāk ±punktos",
     period: "PERIODS", periodHint: "· ℹ️ dienas detaļām",
     noPlayers: "Pievieno spēlētājus cilnē «Spēle»",
     roster: "👥 KOMANDAS SASTĀVS",
@@ -97,8 +97,8 @@ const T = {
     allTime: "All time", totalMatches: "Total matches", matchesOf: "Matches",
     wins: "WINS", losses: "LOSSES", games: "GAMES", scored: "SCORED", conceded: "CONCEDED",
     winRate: "wins", game1: "game", game24: "games", game5: "games",
-    rankGames: t.rankGames, rankGamesHint: "Who won most games",
-    rankKing: t.rankKing, rankKingHint: "Who has best ±points",
+    rankGames: "🏐 Games", rankGamesHint: "Who won most games",
+    rankKing: "👑 King", rankKingHint: "Who has best ±points",
     period: "PERIOD", periodHint: "· ℹ️ for day details",
     noPlayers: "Add players in the «Game» tab",
     roster: "👥 TEAM ROSTER",
@@ -870,7 +870,7 @@ export default function App() {
             <div style={{...card,background:C.cardHi,padding:"10px 16px",
               display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{fontSize:13,color:C.sub,fontWeight:600}}>
-                {dayFilter==="all"?dayFilter==="all"?t.totalMatches:`${t.matchesOf} ${fmtDate(dayFilter)}`}
+                {dayFilter==="all"?t.totalMatches:`${t.matchesOf} ${fmtDate(dayFilter)}`}
               </div>
               <div style={{fontSize:22,fontWeight:900,color:C.sand}}>{filteredMatches.length}</div>
             </div>
