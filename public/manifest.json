@@ -1,19 +1,19 @@
 {
-  "short_name": "Beach 2x2",
-  "name": "Beach 2x2 — Пляжный волейбол",
+  "short_name": "Play 2x2",
+  "name": "Play 2x2 — Beach Volleyball",
   "description": "Beach volleyball 2x2 team tracker",
   "icons": [
     {
       "src": "icon.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "start_url": "/",
