@@ -17,7 +17,7 @@ const C = {
 
 const LANG = {
   ru: {
-    title: "PLAY", title2: "2×2",
+    title: "Пляж", title2: "2×2",
     matches: "матчей", players: "игроков",
     addPlayer: "ДОБАВИТЬ ИГРОКА", playerPlaceholder: "Имя игрока",
     playing: "КТО ИГРАЕТ СЕГОДНЯ", viewOnly: "просмотр",
