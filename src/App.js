@@ -17,7 +17,7 @@ const C = {
 
 const LANG = {
   ru: {
-    title: "Пляж", title2: "2×2",
+    title: "Play", title2: "2x2",
     matches: "матчей", players: "игроков",
     addPlayer: "ДОБАВИТЬ ИГРОКА", playerPlaceholder: "Имя игрока",
     playing: "КТО ИГРАЕТ СЕГОДНЯ", viewOnly: "просмотр",
@@ -57,7 +57,7 @@ const LANG = {
     loading: "Загрузка...",
   },
   lv: {
-    title: "Pludmale", title2: "2×2",
+    title: "Play", title2: "2x2",
     matches: "spēles", players: "spēlētāji",
     addPlayer: "PIEVIENOT SPĒLĒTĀJU", playerPlaceholder: "Spēlētāja vārds",
     playing: "KAS SPĒLĒ ŠODIEN", viewOnly: "skatīties",
@@ -97,7 +97,7 @@ const LANG = {
     loading: "Ielādē...",
   },
   en: {
-    title: "Beach", title2: "2×2",
+    title: "Play", title2: "2x2",
     matches: "matches", players: "players",
     addPlayer: "ADD PLAYER", playerPlaceholder: "Player name",
     playing: "WHO PLAYS TODAY", viewOnly: "view only",
@@ -482,7 +482,7 @@ function LoadingScreen({ text }) {
       alignItems:"center",justifyContent:"center",fontFamily:"'Outfit',sans-serif"}}>
       <img src="/icon.jpg" alt="Beach 2x2" style={{width:80,height:80,borderRadius:18,marginBottom:16,objectFit:"cover"}} />
       <div style={{fontSize:20,fontWeight:900,color:C.text,marginBottom:8}}>
-        Beach <span style={{color:C.sand}}>2×2</span>
+        Play <span style={{color:C.sand}}>2x2</span>
       </div>
       <div style={{fontSize:13,color:C.sub}}>{text}</div>
     </div>
@@ -639,7 +639,7 @@ export default function App() {
               style={{width:40,height:40,borderRadius:10,objectFit:"cover",flexShrink:0}} />
             <div>
               <div style={{fontSize:17,fontWeight:900,letterSpacing:-0.5}}>
-                {t.title} <span style={{color:C.sand}}>{t.title2}</span>
+                Play <span style={{color:C.sand}}>2x2</span>
               </div>
               <div style={{fontSize:10,color:C.sub}}>{matches.length} {t.matches} · {players.length} {t.players}</div>
             </div>
@@ -1079,7 +1079,7 @@ export default function App() {
         display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <img src="/icon.jpg" alt="" style={{width:20,height:20,borderRadius:4,objectFit:"cover"}} />
-          <span style={{fontSize:11,color:C.sub}}>Beach 2×2</span>
+          <span style={{fontSize:11,color:C.sub}}>Play 2x2</span>
         </div>
         <span style={{fontSize:11,color:isAdmin?C.sand:C.sub,fontWeight:700}}>
           {isAdmin ? t.adminMode : t.viewMode}
