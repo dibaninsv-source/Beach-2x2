@@ -480,7 +480,7 @@ function LoadingScreen({ text }) {
   return (
     <div style={{background:C.bg,minHeight:"100vh",display:"flex",flexDirection:"column",
       alignItems:"center",justifyContent:"center",fontFamily:"'Outfit',sans-serif"}}>
-      <img src="/icon.jpg" alt="Beach 2x2" style={{width:80,height:80,borderRadius:18,marginBottom:16,objectFit:"cover"}} />
+      <img src="/icon-512.png" alt="Beach 2x2" style={{width:80,height:80,borderRadius:18,marginBottom:16,objectFit:"cover"}} />
       <div style={{fontSize:20,fontWeight:900,color:C.text,marginBottom:8}}>
         Play <span style={{color:C.sand}}>2x2</span>
       </div>
@@ -635,7 +635,7 @@ export default function App() {
         padding:"10px 16px 8px",borderBottom:"1px solid "+C.border}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <img src="/icon.jpg" alt="Beach 2x2"
+            <img src="/icon-512.png" alt="Beach 2x2"
               style={{width:40,height:40,borderRadius:10,objectFit:"cover",flexShrink:0}} />
             <div>
               <div style={{fontSize:17,fontWeight:900,letterSpacing:-0.5}}>
@@ -1078,7 +1078,7 @@ export default function App() {
         borderTop:"1px solid "+C.border,padding:"7px 16px",
         display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <img src="/icon.jpg" alt="" style={{width:20,height:20,borderRadius:4,objectFit:"cover"}} />
+          <img src="/icon-512.png" alt="" style={{width:20,height:20,borderRadius:4,objectFit:"cover"}} />
           <span style={{fontSize:11,color:C.sub}}>Play 2x2</span>
         </div>
         <span style={{fontSize:11,color:isAdmin?C.sand:C.sub,fontWeight:700}}>
