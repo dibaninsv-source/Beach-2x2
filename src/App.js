@@ -38,6 +38,11 @@ function parseTennisWinner(setsStr) {
   return 0;
 }
 
+// Convert sets array [{a,b}] to string "6:3 6:4"
+function setsToString(sets) {
+  return sets.filter(s=>s.a!==""||s.b!=="").map(s=>`${s.a||0}:${s.b||0}`).join(" ");
+}
+
 const AVATAR_COLORS = ["#FF6B35","#F7C948","#2EC4B6","#E94F7C","#6C63FF","#3DDC97","#FF9F1C","#00B4D8","#EF476F","#06D6A0"];
 const avatarColor = name => AVATAR_COLORS[(name.charCodeAt(0)+name.length) % AVATAR_COLORS.length];
 
@@ -353,25 +358,37 @@ function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, i
     <div style={{background:C.bg,minHeight:"100vh",width:"100%",maxWidth:430,margin:"0 auto",
       fontFamily:"'Outfit',sans-serif",color:C.text,display:"flex",flexDirection:"column"}}>
       {showJoin && (
-        <div style={{position:"fixed",inset:0,background:"#000000cc",zIndex:300,
-          display:"flex",alignItems:"center",justifyContent:"center",padding:24}}
+        <div style={{position:"fixed",inset:0,zIndex:300,
+          display:"flex",alignItems:"center",justifyContent:"center",padding:24,
+          background:"linear-gradient(135deg,#0D0D1Aee,#1a1a35ee)"}}
           onClick={()=>{setShowJoin(null);setJoinPw("");}}>
-          <div style={{background:"#161626",borderRadius:18,padding:24,width:"100%",maxWidth:300,
-            border:"1px solid "+C.border,boxShadow:"0 24px 60px #000"}} onClick={e=>e.stopPropagation()}>
-            <div style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:4}}>{showJoin.name}</div>
-            <div style={{fontSize:12,color:C.sub,marginBottom:4}}>{t.enterPassword}</div>
-            <div style={{fontSize:11,color:C.sub,marginBottom:12}}>🔑 {t.captainBtn} · 🔒 {t.teamPrivateHint}</div>
+          <div style={{background:"linear-gradient(160deg,#1a1a35,#0D0D1A)",
+            borderRadius:20,padding:28,width:"100%",maxWidth:300,
+            border:`1px solid ${sport.color}55`,
+            boxShadow:`0 0 60px ${sport.color}30, 0 24px 60px #000`}}
+            onClick={e=>e.stopPropagation()}>
+            <div style={{textAlign:"center",marginBottom:16}}>
+              <div style={{fontSize:36,marginBottom:6}}>{sport.emoji}</div>
+              <div style={{fontSize:17,fontWeight:800,color:C.text}}>{showJoin.name}</div>
+              <div style={{fontSize:11,color:C.sub,marginTop:4}}>
+                {showJoin.isPrivate ? "🔒 "+t.teamPrivateHint : "🔑 "+t.captainBtn}
+              </div>
+            </div>
             <input autoFocus type="password" value={joinPw}
               onChange={e=>{setJoinPw(e.target.value);setErr(false);}}
               onKeyDown={e=>e.key==="Enter"&&handleJoin(showJoin)}
-              placeholder={t.enterPassword}
-              style={{...is,border:`1.5px solid ${err?"#FF6B6B":C.border}`,marginBottom:6}}/>
-            {err&&<div style={{fontSize:12,color:"#FF6B6B",marginBottom:6}}>{t.wrongPassword}</div>}
-            <div style={{display:"flex",gap:8,marginTop:12}}>
+              placeholder="••••••"
+              style={{background:"#0D0D1A",border:`1.5px solid ${err?"#FF6B6B":sport.color+"66"}`,
+                borderRadius:10,padding:"12px 14px",color:C.text,
+                fontFamily:"'Outfit',sans-serif",fontSize:16,outline:"none",
+                width:"100%",boxSizing:"border-box",
+                textAlign:"center",letterSpacing:4,marginBottom:6}}/>
+            {err&&<div style={{fontSize:12,color:"#FF6B6B",marginBottom:6,textAlign:"center"}}>{t.wrongPassword}</div>}
+            <div style={{display:"flex",gap:8,marginTop:14}}>
               <button onClick={()=>{setShowJoin(null);setJoinPw("");}}
                 style={{...bs(C.cardHi),flex:1,color:C.sub,border:"1px solid "+C.border}}>{t.cancel}</button>
               <button onClick={()=>handleJoin(showJoin)}
-                style={{...bs(sport.color),flex:2,color:"#0D0D1A"}}>{t.join}</button>
+                style={{...bs(sport.color),flex:2,color:"#0D0D1A",fontWeight:800}}>{t.join}</button>
             </div>
           </div>
         </div>
@@ -554,8 +571,11 @@ export default function App() {
   const [t1p1,setT1p1]=useState(""); const [t1p2,setT1p2]=useState("");
   const [t2p1,setT2p1]=useState(""); const [t2p2,setT2p2]=useState("");
   const [score1,setScore1]=useState(""); const [score2,setScore2]=useState("");
-  const [tennisScore,setTennisScore]=useState(""); // "6:3 6:4" format
+  const [tennisScore,setTennisScore]=useState("");
+  const [sets,setSets]=useState([{a:"",b:""},{a:"",b:""}]); // per-set score boxes
   const isTennis = currentTeam ? isTennisSport(currentTeam.sport) : false;
+  // singles mode (1v1) for tennis/padel
+  const [singlesMode,setSinglesMode]=useState(false);
   const [rankMode,setRankMode]=useState("games");
   const [dayFilter,setDayFilter]=useState("all");
   const [dayDetailDay,setDayDetailDay]=useState(null);
@@ -649,21 +669,25 @@ export default function App() {
   const sessionPlayers = players.filter(p=>sessionIds.includes(p.id));
   const toggleSession = id => setSessionIds(ids=>ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]);
 
-  const matchValid = t1p1&&t1p2&&t2p1&&t2p2
-    &&new Set([t1p1,t1p2,t2p1,t2p2]).size===4
-    &&(isTennis ? parseTennisWinner(tennisScore)!==0 : (score1!==""&&score2!==""&&parseInt(score1)!==parseInt(score2)));
+  const setsStr = setsToString(sets);
+  const matchValid = singlesMode
+    ? (t1p1 && t2p1 && t1p1!==t2p1 && (isTennis ? parseTennisWinner(setsStr)!==0 : (score1!==""&&score2!==""&&parseInt(score1)!==parseInt(score2))))
+    : (t1p1&&t1p2&&t2p1&&t2p2&&new Set([t1p1,t1p2,t2p1,t2p2]).size===4
+      &&(isTennis ? parseTennisWinner(setsStr)!==0 : (score1!==""&&score2!==""&&parseInt(score1)!==parseInt(score2))));
 
   const saveMatch = async () => {
     if (!matchValid) return;
+    const finalT1p2 = singlesMode ? "" : t1p2;
+    const finalT2p2 = singlesMode ? "" : t2p2;
     if (isTennis) {
-      const winner = parseTennisWinner(tennisScore);
-      await fbAddMatch({date:matchDate,t1p1,t1p2,t2p1,t2p2,
-        score1: winner===1?1:0, score2: winner===2?1:0,
-        tennisScore, pending:!isCaptain});
-      setTennisScore("");
+      const winner = parseTennisWinner(setsStr);
+      await fbAddMatch({date:matchDate,t1p1,t1p2:finalT1p2,t2p1,t2p2:finalT2p2,
+        score1:winner===1?1:0,score2:winner===2?1:0,
+        tennisScore:setsStr,singles:singlesMode,pending:!isCaptain});
+      setSets([{a:"",b:""},{a:"",b:""}]);
     } else {
-      await fbAddMatch({date:matchDate,t1p1,t1p2,t2p1,t2p2,
-        score1:parseInt(score1),score2:parseInt(score2),pending:!isCaptain});
+      await fbAddMatch({date:matchDate,t1p1,t1p2:finalT1p2,t2p1,t2p2:finalT2p2,
+        score1:parseInt(score1),score2:parseInt(score2),singles:singlesMode,pending:!isCaptain});
       setScore1("");setScore2("");
     }
     setT1p1("");setT1p2("");setT2p1("");setT2p2("");
@@ -1131,6 +1155,19 @@ export default function App() {
               <div style={{...ls,marginBottom:4}}>{t.date}</div>
               <input type="date" style={is} value={matchDate} onChange={e=>setMatchDate(e.target.value)}/>
             </div>
+            {/* Singles/Doubles toggle for tennis sports */}
+            {isTennis && (
+              <div style={{display:"flex",gap:6,marginBottom:10}}>
+                {[[false,"👥 2×2"],[true,"🎾 1×1"]].map(([val,label])=>(
+                  <div key={val?1:0} onClick={()=>{setSinglesMode(val);setT1p2("");setT2p2("");}}
+                    style={{flex:1,textAlign:"center",borderRadius:10,padding:"8px 6px",cursor:"pointer",
+                      background:singlesMode===val?C.sky+"22":C.cardHi,
+                      border:"1.5px solid "+(singlesMode===val?C.sky:C.border)}}>
+                    <div style={{fontSize:13,fontWeight:700,color:singlesMode===val?C.sky:C.sub}}>{label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
             <div style={{background:C.cardHi,borderRadius:10,padding:10,marginBottom:8,borderLeft:"3px solid "+C.sky}}>
               <div style={{...ls,color:C.sky}}>{t.team1}</div>
               <div style={{display:"flex",gap:6}}>
@@ -1138,10 +1175,12 @@ export default function App() {
                   <option value="">{t.p1}</option>
                   {sessionPlayers.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <select style={{...ss,flex:1}} value={t1p2} onChange={e=>setT1p2(e.target.value)}>
-                  <option value="">{t.p2}</option>
-                  {sessionPlayers.filter(p=>p.id!==t1p1).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                {!singlesMode&&(
+                  <select style={{...ss,flex:1}} value={t1p2} onChange={e=>setT1p2(e.target.value)}>
+                    <option value="">{t.p2}</option>
+                    {sessionPlayers.filter(p=>p.id!==t1p1).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                )}
               </div>
             </div>
             <div style={{background:C.cardHi,borderRadius:10,padding:10,marginBottom:14,borderLeft:"3px solid "+C.red}}>
@@ -1149,27 +1188,49 @@ export default function App() {
               <div style={{display:"flex",gap:6}}>
                 <select style={{...ss,flex:1}} value={t2p1} onChange={e=>setT2p1(e.target.value)}>
                   <option value="">{t.p1}</option>
-                  {sessionPlayers.filter(p=>![t1p1,t1p2].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                  {sessionPlayers.filter(p=>![t1p1,singlesMode?"":t1p2].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
-                <select style={{...ss,flex:1}} value={t2p2} onChange={e=>setT2p2(e.target.value)}>
-                  <option value="">{t.p2}</option>
-                  {sessionPlayers.filter(p=>![t1p1,t1p2,t2p1].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                {!singlesMode&&(
+                  <select style={{...ss,flex:1}} value={t2p2} onChange={e=>setT2p2(e.target.value)}>
+                    <option value="">{t.p2}</option>
+                    {sessionPlayers.filter(p=>![t1p1,t1p2,t2p1].includes(p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                )}
               </div>
             </div>
             {isTennis ? (
               <div style={{marginBottom:14}}>
-                <div style={{...ls,color:C.sky,marginBottom:6}}>{t.sets}</div>
-                <input style={is} value={tennisScore}
-                  onChange={e=>setTennisScore(e.target.value)}
-                  placeholder={t.setsPlaceholder}/>
-                <div style={{fontSize:11,color:C.sub,marginTop:6}}>💡 {t.setsHint}</div>
-                {tennisScore&&parseTennisWinner(tennisScore)===0&&(
-                  <div style={{fontSize:11,color:C.pending,marginTop:6}}>⚠️ Не удалось определить победителя</div>
-                )}
-                {tennisScore&&parseTennisWinner(tennisScore)!==0&&(
-                  <div style={{fontSize:11,color:C.green,marginTop:6}}>
-                    ✓ Победа: {parseTennisWinner(tennisScore)===1?"Команда 1":"Команда 2"}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                  <div style={{...ls,marginBottom:0}}>СЧЁТ ПО СЕТАМ</div>
+                  <button onClick={()=>setSets(s=>s.length<5?[...s,{a:"",b:""}]:s)}
+                    style={{background:C.cardHi,border:"1px solid "+C.border,borderRadius:8,
+                      padding:"4px 10px",color:C.sub,fontSize:11,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
+                    + Сет
+                  </button>
+                </div>
+                {sets.map((set,idx)=>(
+                  <div key={idx} style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                    <div style={{fontSize:11,color:C.sub,minWidth:40,fontWeight:700}}>Сет {idx+1}</div>
+                    <input type="number" min="0" max="99" value={set.a}
+                      onChange={e=>setSets(s=>s.map((x,i)=>i===idx?{...x,a:e.target.value}:x))}
+                      style={{width:56,height:42,background:C.cardHi,border:"2px solid "+C.sky+"55",
+                        borderRadius:10,color:C.sky,fontWeight:900,fontSize:22,textAlign:"center",
+                        fontFamily:"'Outfit',sans-serif",outline:"none"}}/>
+                    <div style={{fontSize:20,fontWeight:900,color:C.sub}}>:</div>
+                    <input type="number" min="0" max="99" value={set.b}
+                      onChange={e=>setSets(s=>s.map((x,i)=>i===idx?{...x,b:e.target.value}:x))}
+                      style={{width:56,height:42,background:C.cardHi,border:"2px solid "+C.red+"55",
+                        borderRadius:10,color:C.red,fontWeight:900,fontSize:22,textAlign:"center",
+                        fontFamily:"'Outfit',sans-serif",outline:"none"}}/>
+                    {sets.length>2&&(
+                      <button onClick={()=>setSets(s=>s.filter((_,i)=>i!==idx))}
+                        style={{background:"none",border:"none",color:C.sub,cursor:"pointer",fontSize:14}}>✕</button>
+                    )}
+                  </div>
+                ))}
+                {setsStr&&parseTennisWinner(setsStr)!==0&&(
+                  <div style={{fontSize:12,color:C.green,marginTop:4,fontWeight:700}}>
+                    ✓ {parseTennisWinner(setsStr)===1?"Команда 1":"Команда 2"} побеждает {setsStr}
                   </div>
                 )}
               </div>
