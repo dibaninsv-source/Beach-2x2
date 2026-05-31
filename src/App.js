@@ -8,6 +8,28 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const today = () => new Date().toISOString().split("T")[0];
 const SUPER_ADMIN_PASSWORD = "132333";
 
+
+const COUNTRIES = [
+  {code:"LV",flag:"🇱🇻",name:"Latvia"},{code:"EE",flag:"🇪🇪",name:"Estonia"},
+  {code:"LT",flag:"🇱🇹",name:"Lithuania"},{code:"RU",flag:"🇷🇺",name:"Russia"},
+  {code:"UA",flag:"🇺🇦",name:"Ukraine"},{code:"BY",flag:"🇧🇾",name:"Belarus"},
+  {code:"FI",flag:"🇫🇮",name:"Finland"},{code:"SE",flag:"🇸🇪",name:"Sweden"},
+  {code:"NO",flag:"🇳🇴",name:"Norway"},{code:"DK",flag:"🇩🇰",name:"Denmark"},
+  {code:"DE",flag:"🇩🇪",name:"Germany"},{code:"PL",flag:"🇵🇱",name:"Poland"},
+  {code:"CZ",flag:"🇨🇿",name:"Czech Republic"},{code:"SK",flag:"🇸🇰",name:"Slovakia"},
+  {code:"AT",flag:"🇦🇹",name:"Austria"},{code:"CH",flag:"🇨🇭",name:"Switzerland"},
+  {code:"NL",flag:"🇳🇱",name:"Netherlands"},{code:"BE",flag:"🇧🇪",name:"Belgium"},
+  {code:"FR",flag:"🇫🇷",name:"France"},{code:"ES",flag:"🇪🇸",name:"Spain"},
+  {code:"IT",flag:"🇮🇹",name:"Italy"},{code:"PT",flag:"🇵🇹",name:"Portugal"},
+  {code:"GB",flag:"🇬🇧",name:"United Kingdom"},{code:"IE",flag:"🇮🇪",name:"Ireland"},
+  {code:"US",flag:"🇺🇸",name:"USA"},{code:"CA",flag:"🇨🇦",name:"Canada"},
+  {code:"AU",flag:"🇦🇺",name:"Australia"},{code:"BR",flag:"🇧🇷",name:"Brazil"},
+  {code:"AR",flag:"🇦🇷",name:"Argentina"},{code:"MX",flag:"🇲🇽",name:"Mexico"},
+  {code:"JP",flag:"🇯🇵",name:"Japan"},{code:"KR",flag:"🇰🇷",name:"South Korea"},
+  {code:"CN",flag:"🇨🇳",name:"China"},{code:"IN",flag:"🇮🇳",name:"India"},
+  {code:"TR",flag:"🇹🇷",name:"Turkey"},{code:"GR",flag:"🇬🇷",name:"Greece"},
+  {code:"IL",flag:"🇮🇱",name:"Israel"},{code:"ZA",flag:"🇿🇦",name:"South Africa"},
+];
 const SPORTS = [
   { id:"beach_volleyball", emoji:"🏐", name:"Beach Volleyball", color:"#2EC4B6" },
   { id:"beach_tennis",     emoji:"🎾", name:"Beach Tennis",     color:"#F7C948" },
@@ -97,6 +119,10 @@ const LANG = {
     loading:"Загрузка...", matches:"матчей", players:"игроков",
     superAdminTitle:"Супер-Админ", superAdminHint:"Главный администратор платформы",
     deleteTeam:"🗑 Удалить команду", confirmDeleteTeam:"Удалить эту команду и все данные?",
+    captainName:"Ваше имя (капитан)", captainNamePlaceholder:"Введите ваше имя",
+    captainPassword:"Пароль капитана", captainPasswordHint:"Только для вас — для управления командой",
+    teamJoinPassword:"Пароль для игроков", teamJoinPasswordHint:"Этим паролем поделитесь с командой",
+    country:"Страна", selectCountry:"Выберите страну",
     teamPublic:"🌍 Открытая", teamPrivate:"🔒 Закрытая",
     teamPublicHint:"Все могут смотреть без пароля", teamPrivateHint:"Нужен пароль для просмотра",
     privateTag:"🔒 Закрытая", publicTag:"🌍 Открытая",
@@ -145,6 +171,10 @@ const LANG = {
     loading:"Ielādē...", matches:"spēles", players:"spēlētāji",
     superAdminTitle:"Super-Admin", superAdminHint:"Galvenais platformas administrators",
     deleteTeam:"🗑 Dzēst komandu", confirmDeleteTeam:"Dzēst šo komandu un visus datus?",
+    captainName:"Jūsu vārds (kapteinis)", captainNamePlaceholder:"Ievadiet savu vārdu",
+    captainPassword:"Kapteiņa parole", captainPasswordHint:"Tikai jums — komandas pārvaldībai",
+    teamJoinPassword:"Spēlētāju parole", teamJoinPasswordHint:"Dalieties ar šo paroli ar komandu",
+    country:"Valsts", selectCountry:"Izvēlieties valsti",
     teamPublic:"🌍 Atklāta", teamPrivate:"🔒 Slēgta",
     teamPublicHint:"Visi var skatīties bez paroles", teamPrivateHint:"Vajag paroli lai skatītos",
     privateTag:"🔒 Slēgta", publicTag:"🌍 Atklāta",
@@ -193,6 +223,10 @@ const LANG = {
     loading:"Loading...", matches:"matches", players:"players",
     superAdminTitle:"Super-Admin", superAdminHint:"Main platform administrator",
     deleteTeam:"🗑 Delete team", confirmDeleteTeam:"Delete this team and all data?",
+    captainName:"Your name (captain)", captainNamePlaceholder:"Enter your name",
+    captainPassword:"Captain password", captainPasswordHint:"Only for you — to manage the team",
+    teamJoinPassword:"Players password", teamJoinPasswordHint:"Share this password with your team",
+    country:"Country", selectCountry:"Select country",
     teamPublic:"🌍 Public", teamPrivate:"🔒 Private",
     teamPublicHint:"Anyone can view without password", teamPrivateHint:"Password required to view",
     privateTag:"🔒 Private", publicTag:"🌍 Public",
@@ -443,7 +477,11 @@ function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, i
                   {team.isPrivate?t.privateTag:t.publicTag}
                 </div>
               </div>
-              <div style={{fontSize:11,color:C.sub}}>{team.playerCount||0} {t.players} · {team.matchCount||0} {t.matches}</div>
+              <div style={{fontSize:11,color:C.sub}}>
+                {team.country && COUNTRIES.find(c=>c.code===team.country) &&
+                  <span style={{marginRight:4}}>{COUNTRIES.find(c=>c.code===team.country).flag}</span>}
+                {team.playerCount||0} {t.players} · {team.matchCount||0} {t.matches}
+              </div>
             </div>
             <div style={{color:C.sub,fontSize:18}}>›</div>
           </div>
@@ -462,9 +500,12 @@ function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, i
 function CreateTeamScreen({ lang, sport, onCreate, onBack }) {
   const t = LANG[lang];
   const [name, setName] = useState("");
-  const [pw, setPw] = useState("");
+  const [captainPw, setCaptainPw] = useState("");
+  const [captainName, setCaptainName] = useState("");
+  const [joinPw, setJoinPw] = useState("");
+  const [country, setCountry] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
-  const valid = name.trim().length>0 && pw.trim().length>=3;
+  const valid = name.trim().length>0 && captainPw.trim().length>=3 && joinPw.trim().length>=3 && country!=="" && captainName.trim().length>0;
   return (
     <div style={{background:C.bg,minHeight:"100vh",width:"100%",maxWidth:430,margin:"0 auto",
       fontFamily:"'Outfit',sans-serif",color:C.text,display:"flex",flexDirection:"column"}}>
@@ -486,11 +527,35 @@ function CreateTeamScreen({ lang, sport, onCreate, onBack }) {
           <input style={is} value={name} onChange={e=>setName(e.target.value)}
             placeholder={t.teamName} onKeyDown={e=>e.key==="Enter"&&valid&&onCreate(name.trim(),pw.trim())}/>
         </div>
+        {/* Captain name */}
         <div style={{...cs}}>
-          <div style={ls}>{t.teamPassword}</div>
-          <input style={is} type="password" value={pw} onChange={e=>setPw(e.target.value)}
-            placeholder="••••••" onKeyDown={e=>e.key==="Enter"&&valid&&onCreate(name.trim(),pw.trim())}/>
-          <div style={{fontSize:11,color:C.sub,marginTop:6}}>🔑 {t.passwordHint}</div>
+          <div style={{...ls,color:C.sand}}>{t.captainName} 👑</div>
+          <input style={is} value={captainName} onChange={e=>setCaptainName(e.target.value)}
+            placeholder={t.captainNamePlaceholder}/>
+        </div>
+        {/* Captain password */}
+        <div style={{...cs,border:"1px solid "+C.sand+"44",background:C.sand+"08"}}>
+          <div style={{...ls,color:C.sand}}>{t.captainPassword} 👑</div>
+          <input style={{...is,border:"1px solid "+C.sand+"44"}} type="password" value={captainPw}
+            onChange={e=>setCaptainPw(e.target.value)} placeholder="••••••"/>
+          <div style={{fontSize:11,color:C.sub,marginTop:6}}>🔒 {t.captainPasswordHint}</div>
+        </div>
+        {/* Team join password */}
+        <div style={{...cs,border:"1px solid "+C.sky+"44",background:C.sky+"08"}}>
+          <div style={{...ls,color:C.sky}}>{t.teamJoinPassword} 👥</div>
+          <input style={{...is,border:"1px solid "+C.sky+"44"}} type="password" value={joinPw}
+            onChange={e=>setJoinPw(e.target.value)} placeholder="••••••"/>
+          <div style={{fontSize:11,color:C.sub,marginTop:6}}>🤝 {t.teamJoinPasswordHint}</div>
+        </div>
+        {/* Country */}
+        <div style={{...cs}}>
+          <div style={ls}>{t.country} 🌍</div>
+          <select style={{...is,appearance:"none"}} value={country} onChange={e=>setCountry(e.target.value)}>
+            <option value="">{t.selectCountry}</option>
+            {COUNTRIES.map(c=>(
+              <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+            ))}
+          </select>
         </div>
         {/* Privacy toggle */}
         <div style={{...cs}}>
@@ -515,7 +580,7 @@ function CreateTeamScreen({ lang, sport, onCreate, onBack }) {
         <div style={{...cs,background:sport.color+"11",border:`1px solid ${sport.color}33`}}>
           <div style={{fontSize:12,color:C.sub}}>👑 {t.captainHint}</div>
         </div>
-        <button onClick={()=>valid&&onCreate(name.trim(),pw.trim(),isPrivate)}
+        <button onClick={()=>valid&&onCreate(name.trim(),captainPw.trim(),isPrivate,joinPw.trim(),country,captainName.trim())}
           style={{...bs(valid?sport.color:C.border),width:"100%",color:valid?"#0D0D1A":C.sub,
             opacity:valid?1:0.6,fontSize:16,padding:"14px"}}>
           {t.create}
@@ -630,14 +695,19 @@ export default function App() {
   const fbDeleteMatch = async id => await deleteDoc(doc(db,`teams/${currentTeam.id}/matches`,id));
   const fbSetDayLink = async (date,url) => await setDoc(doc(db,`teams/${currentTeam.id}/dayLinks`,date),{url});
 
-  const createTeam = async (name, password, isPrivate=false) => {
+  const createTeam = async (name, captainPw, isPrivate=false, joinPw='', country='', captainName='') => {
     const id = uid();
     const sport = selectedSport;
     await setDoc(doc(db,"teams",id),{
-      id, name, password, sport:sport.id, isPrivate,
-      playerCount:0, matchCount:0, createdAt:Date.now()
+      id, name, password:captainPw, joinPassword:joinPw, country, sport:sport.id, isPrivate,
+      captainName, playerCount:0, matchCount:0, createdAt:Date.now()
     });
-    const team = {id,name,password,sport:sport.id,playerCount:0,matchCount:0};
+    // Auto-add captain as player with captain badge
+    if (captainName) {
+      const pid = uid();
+      await setDoc(doc(db,`teams/${id}/players`,pid),{name:captainName,photo:null,isCaptain:true,createdAt:Date.now()});
+    }
+    const team = {id,name,password:captainPw,joinPassword:joinPw,country,sport:sport.id,isPrivate,captainName,playerCount:0,matchCount:0};
     setCurrentTeam(team);
     setRole("captain");
     setScreen("team");
@@ -1021,7 +1091,11 @@ export default function App() {
             <div style={{fontSize:20}}>{sport.emoji}</div>
             <div>
               <div style={{fontSize:15,fontWeight:800}}>{currentTeam?.name}</div>
-              <div style={{fontSize:10,color:C.sub}}>{matches.length} {t.matches} · {players.length} {t.players}</div>
+              <div style={{fontSize:10,color:C.sub}}>
+                {currentTeam?.country && COUNTRIES.find(c=>c.code===currentTeam.country) &&
+                  <span style={{marginRight:3}}>{COUNTRIES.find(c=>c.code===currentTeam.country).flag}</span>}
+                {matches.length} {t.matches} · {players.length} {t.players}
+              </div>
             </div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:6}}>
@@ -1110,6 +1184,8 @@ export default function App() {
                         <Avatar player={p} size={22}/>
                       </div>
                       <span style={{fontSize:13,fontWeight:600,color:on?C.text:C.sub}}>{p.name}</span>
+                      {p.isCaptain&&<span style={{fontSize:9,fontWeight:800,color:C.sky,
+                        background:C.sky+"22",borderRadius:8,padding:"1px 5px",marginLeft:2}}>⚓</span>}
                       {isCaptain&&(
                         <span onClick={e=>{e.stopPropagation();setDeleteConfirm(p.id);}}
                           style={{marginLeft:4,fontSize:11,color:C.sub,cursor:"pointer",opacity:0.6}}>×</span>
@@ -1266,7 +1342,9 @@ export default function App() {
                         onClick={()=>setPhotoPickerPlayer(p)}>📷</div>}
                     </div>
                     <div style={{fontSize:10,fontWeight:700,textAlign:"center",color:C.text,
-                      overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:56}}>{p.name}</div>
+                      overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:56}}>
+                      {p.isCaptain&&<span style={{fontSize:9}}>⚓</span>} {p.name}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1352,7 +1430,7 @@ export default function App() {
                   </div>
                   <div style={{flex:1}}>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
-                      <div style={{fontSize:16,fontWeight:800}}>{p.name}</div>
+                      <div style={{fontSize:16,fontWeight:800}}>{p.name} {p.isCaptain&&<span style={{fontSize:11}}>⚓</span>}</div>
                       {tr.cups>0&&<span style={{fontSize:12}}>{"🏆".repeat(Math.min(tr.cups,3))}{tr.cups>3?`+${tr.cups-3}`:""}</span>}
                       {tr.crowns>0&&<span style={{fontSize:12}}>{"👑".repeat(Math.min(tr.crowns,3))}{tr.crowns>3?`+${tr.crowns-3}`:""}</span>}
                     </div>
