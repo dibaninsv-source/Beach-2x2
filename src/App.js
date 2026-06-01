@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { db } from "./firebase";
 import {
-  collection, doc, onSnapshot, setDoc, deleteDoc, updateDoc, getDocs, query, where
+  collection, doc, onSnapshot, setDoc, deleteDoc, updateDoc, getDocs
 } from "firebase/firestore";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -119,6 +119,7 @@ const LANG = {
     loading:"Загрузка...", matches:"матчей", players:"игроков",
     superAdminTitle:"Супер-Админ", superAdminHint:"Главный администратор платформы",
     deleteTeam:"🗑 Удалить команду", confirmDeleteTeam:"Удалить эту команду и все данные?",
+    showPasswords:"🔑 Показать пароли", captainPwLabel:"Пароль капитана", joinPwLabel:"Пароль команды", teamsCount:"команд",
     captainName:"Ваше имя (капитан)", captainNamePlaceholder:"Введите ваше имя",
     captainPassword:"Пароль капитана", captainPasswordHint:"Только для вас — для управления командой",
     teamJoinPassword:"Пароль для игроков", teamJoinPasswordHint:"Этим паролем поделитесь с командой",
@@ -171,6 +172,7 @@ const LANG = {
     loading:"Ielādē...", matches:"spēles", players:"spēlētāji",
     superAdminTitle:"Super-Admin", superAdminHint:"Galvenais platformas administrators",
     deleteTeam:"🗑 Dzēst komandu", confirmDeleteTeam:"Dzēst šo komandu un visus datus?",
+    showPasswords:"🔑 Rādīt paroles", captainPwLabel:"Kapteiņa parole", joinPwLabel:"Komandas parole", teamsCount:"komandas",
     captainName:"Jūsu vārds (kapteinis)", captainNamePlaceholder:"Ievadiet savu vārdu",
     captainPassword:"Kapteiņa parole", captainPasswordHint:"Tikai jums — komandas pārvaldībai",
     teamJoinPassword:"Spēlētāju parole", teamJoinPasswordHint:"Dalieties ar šo paroli ar komandu",
@@ -223,6 +225,7 @@ const LANG = {
     loading:"Loading...", matches:"matches", players:"players",
     superAdminTitle:"Super-Admin", superAdminHint:"Main platform administrator",
     deleteTeam:"🗑 Delete team", confirmDeleteTeam:"Delete this team and all data?",
+    showPasswords:"🔑 Show passwords", captainPwLabel:"Captain password", joinPwLabel:"Team password", teamsCount:"teams",
     captainName:"Your name (captain)", captainNamePlaceholder:"Enter your name",
     captainPassword:"Captain password", captainPasswordHint:"Only for you — to manage the team",
     teamJoinPassword:"Players password", teamJoinPasswordHint:"Share this password with your team",
@@ -374,11 +377,13 @@ function SportScreen({ lang, onSelect }) {
 }
 
 // ── Teams List Screen ─────────────────────────────────────────────────────────
-function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, isSuperAdmin }) {
+function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, isSuperAdmin, onDeleteTeam }) {
   const t = LANG[lang];
   const [showJoin, setShowJoin] = useState(null);
   const [joinPw, setJoinPw] = useState("");
   const [err, setErr] = useState(false);
+  const [showPwTeam, setShowPwTeam] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const sportTeams = teams.filter(tm=>tm.sport===sport.id);
 
   const handleJoin = (team) => {
@@ -391,6 +396,36 @@ function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, i
   return (
     <div style={{background:C.bg,minHeight:"100vh",width:"100%",maxWidth:430,margin:"0 auto",
       fontFamily:"'Outfit',sans-serif",color:C.text,display:"flex",flexDirection:"column"}}>
+      {/* Delete confirm popup */}
+      {confirmDelete&&(
+        <div style={{position:"fixed",inset:0,background:"#000000cc",zIndex:400,
+          display:"flex",alignItems:"center",justifyContent:"center",padding:24}}
+          onClick={()=>setConfirmDelete(null)}>
+          <div style={{background:"#161626",borderRadius:16,padding:24,width:"100%",maxWidth:300,
+            border:"1px solid #FF6B6B55",boxShadow:"0 24px 60px #000"}} onClick={e=>e.stopPropagation()}>
+            <div style={{fontSize:28,textAlign:"center",marginBottom:8}}>🗑️</div>
+            <div style={{fontSize:14,fontWeight:800,textAlign:"center",color:"#E8E8F0",marginBottom:6}}>
+              {t.deleteTeam}
+            </div>
+            <div style={{fontSize:12,color:"#7070A0",textAlign:"center",marginBottom:6}}>
+              «{confirmDelete.name}»
+            </div>
+            <div style={{fontSize:11,color:"#FF6B6B",textAlign:"center",marginBottom:18}}>
+              {t.confirmDeleteTeam}
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>setConfirmDelete(null)}
+                style={{...bs("#1E1E35"),flex:1,color:"#7070A0",border:"1px solid #2A2A45"}}>{t.cancel}</button>
+              <button onClick={async()=>{
+                  await onDeleteTeam(confirmDelete.id);
+                  setConfirmDelete(null);
+                }}
+                style={{...bs("#FF6B6B"),flex:1}}>{t.deleteBtn}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showJoin && (
         <div style={{position:"fixed",inset:0,zIndex:300,
           display:"flex",alignItems:"center",justifyContent:"center",padding:24,
@@ -457,12 +492,13 @@ function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, i
         )}
 
         {sportTeams.map(team => (
-          <div key={team.id} style={{...cs,cursor:"pointer",display:"flex",alignItems:"center",gap:12}}
-            onClick={()=>{
-              if(isSuperAdmin){onSelectTeam(team,"superadmin");}
-              else if(!team.isPrivate){onSelectTeam(team,"viewer");}
-              else{setShowJoin(team);}
-            }}>
+          <div key={team.id} style={{...cs}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}
+              onClick={()=>{
+                if(isSuperAdmin){onSelectTeam(team,"superadmin");}
+                else if(!team.isPrivate){onSelectTeam(team,"viewer");}
+                else{setShowJoin(team);}
+              }}>
             <div style={{width:44,height:44,borderRadius:12,background:sport.color+"33",
               display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>
               {sport.emoji}
@@ -483,7 +519,33 @@ function TeamsScreen({ lang, sport, teams, onBack, onSelectTeam, onCreateTeam, i
                 {team.playerCount||0} {t.players} · {team.matchCount||0} {t.matches}
               </div>
             </div>
-            <div style={{color:C.sub,fontSize:18}}>›</div>
+              <div style={{color:C.sub,fontSize:18}}>›</div>
+            </div>
+            {/* SuperAdmin controls */}
+            {isSuperAdmin&&(
+              <div style={{marginTop:10,paddingTop:10,borderTop:"1px solid "+C.border}}>
+                {showPwTeam===team.id?(
+                  <div style={{background:C.bg,borderRadius:10,padding:10,marginBottom:8}}>
+                    <div style={{fontSize:11,color:C.sand,fontWeight:700,marginBottom:6}}>🔑 {t.captainPwLabel}:</div>
+                    <div style={{fontSize:14,fontWeight:800,color:C.text,letterSpacing:1,marginBottom:8,
+                      background:C.cardHi,borderRadius:8,padding:"6px 10px"}}>{team.password||"—"}</div>
+                    <div style={{fontSize:11,color:C.sky,fontWeight:700,marginBottom:6}}>👥 {t.joinPwLabel}:</div>
+                    <div style={{fontSize:14,fontWeight:800,color:C.text,letterSpacing:1,
+                      background:C.cardHi,borderRadius:8,padding:"6px 10px"}}>{team.joinPassword||"—"}</div>
+                  </div>
+                ):null}
+                <div style={{display:"flex",gap:6}}>
+                  <button onClick={()=>setShowPwTeam(showPwTeam===team.id?null:team.id)}
+                    style={{...bs(C.cardHi,true),flex:1,color:C.sand,border:"1px solid "+C.sand+"44",fontSize:11}}>
+                    {showPwTeam===team.id?"🙈 Скрыть":t.showPasswords}
+                  </button>
+                  <button onClick={()=>setConfirmDelete(team)}
+                    style={{...bs(C.red+"22",true),flex:1,color:C.red,border:"1px solid "+C.red+"44",fontSize:11}}>
+                    {t.deleteTeam}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -695,6 +757,15 @@ export default function App() {
   const fbDeleteMatch = async id => await deleteDoc(doc(db,`teams/${currentTeam.id}/matches`,id));
   const fbSetDayLink = async (date,url) => await setDoc(doc(db,`teams/${currentTeam.id}/dayLinks`,date),{url});
 
+  const fbDeleteTeam = async (teamId) => {
+    // Delete all subcollections then the team doc
+    for (const sub of ["players","matches","dayLinks"]) {
+      const snap = await getDocs(collection(db,`teams/${teamId}/${sub}`));
+      for (const d of snap.docs) await deleteDoc(d.ref);
+    }
+    await deleteDoc(doc(db,"teams",teamId));
+  };
+
   const createTeam = async (name, captainPw, isPrivate=false, joinPw='', country='', captainName='') => {
     const id = uid();
     const sport = selectedSport;
@@ -880,7 +951,9 @@ export default function App() {
             <div style={{fontSize:42,lineHeight:1}}>{sport.emoji}</div>
             <div style={{flex:1}}>
               <div style={{fontSize:18,fontWeight:800,color:C.text}}>{sport.name}</div>
-              <div style={{fontSize:11,color:C.sub,marginTop:2}}>2 × 2</div>
+              <div style={{fontSize:11,color:C.sub,marginTop:2}}>
+                2 × 2 · {allTeams.filter(tm=>tm.sport===sport.id).length} {t.teamsCount}
+              </div>
             </div>
             <div style={{width:10,height:10,borderRadius:"50%",background:sport.color}}/>
           </button>
@@ -901,7 +974,8 @@ export default function App() {
       onBack={()=>setScreen("sports")}
       onSelectTeam={enterTeam}
       onCreateTeam={()=>setScreen("create_team")}
-      isSuperAdmin={isSuperAdmin}/>
+      isSuperAdmin={isSuperAdmin}
+      onDeleteTeam={fbDeleteTeam}/>
   );
 
   // ── Create team screen
