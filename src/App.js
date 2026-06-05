@@ -119,6 +119,7 @@ const LANG = {
     videoAdd:"+ видео", videoLink:"🎬 Видео",
     loading:"Загрузка...", matches:"матчей", players:"игроков",
     superAdminTitle:"Супер-Админ", superAdminHint:"Главный администратор платформы",
+    restorePlayer:"↩️ Восстановить", deletedPlayers:"Удалённые игроки", noDeletedPlayers:"Нет удалённых игроков",
     deleteTeam:"🗑 Удалить команду", confirmDeleteTeam:"Удалить эту команду и все данные?",
     showPasswords:"🔑 Показать пароли", captainPwLabel:"Пароль капитана", joinPwLabel:"Пароль команды", teamsCount:"команд",
     captainName:"Ваше имя (капитан)", captainNamePlaceholder:"Введите ваше имя",
@@ -173,6 +174,7 @@ const LANG = {
     videoAdd:"+ video", videoLink:"🎬 Video",
     loading:"Ielādē...", matches:"spēles", players:"spēlētāji",
     superAdminTitle:"Super-Admin", superAdminHint:"Galvenais platformas administrators",
+    restorePlayer:"↩️ Atjaunot", deletedPlayers:"Dzēstie spēlētāji", noDeletedPlayers:"Nav dzēstu spēlētāju",
     deleteTeam:"🗑 Dzēst komandu", confirmDeleteTeam:"Dzēst šo komandu un visus datus?",
     showPasswords:"🔑 Rādīt paroles", captainPwLabel:"Kapteiņa parole", joinPwLabel:"Komandas parole", teamsCount:"komandas",
     captainName:"Jūsu vārds (kapteinis)", captainNamePlaceholder:"Ievadiet savu vārdu",
@@ -227,6 +229,7 @@ const LANG = {
     videoAdd:"+ video", videoLink:"🎬 Video",
     loading:"Loading...", matches:"matches", players:"players",
     superAdminTitle:"Super-Admin", superAdminHint:"Main platform administrator",
+    restorePlayer:"↩️ Restore", deletedPlayers:"Deleted players", noDeletedPlayers:"No deleted players",
     deleteTeam:"🗑 Delete team", confirmDeleteTeam:"Delete this team and all data?",
     showPasswords:"🔑 Show passwords", captainPwLabel:"Captain password", joinPwLabel:"Team password", teamsCount:"teams",
     captainName:"Your name (captain)", captainNamePlaceholder:"Enter your name",
@@ -681,6 +684,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
 
+  // Restore saved session from localStorage
+  const [sessionRestored, setSessionRestored] = useState(false);
+
   // Show splash for 2 seconds on first load
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 2000);
@@ -716,11 +722,42 @@ export default function App() {
   const [editingLinkDay,setEditingLinkDay]=useState(null);
   const [linkInput,setLinkInput]=useState("");
 
-  // Load all teams
+  // Load all teams + restore session
   useEffect(() => {
     const u = onSnapshot(collection(db,"teams"), snap => {
-      setAllTeams(snap.docs.map(d=>({id:d.id,...d.data()})));
+      const teams = snap.docs.map(d=>({id:d.id,...d.data()}));
+      setAllTeams(teams);
       setLoading(false);
+
+      // Restore saved session once teams are loaded
+      if (!sessionRestored) {
+        setSessionRestored(true);
+        try {
+          const saved = localStorage.getItem("play2x2_session");
+          if (saved) {
+            const s = JSON.parse(saved);
+            // Restore sport
+            if (s.sportId) {
+              const sport = SPORTS.find(sp=>sp.id===s.sportId);
+              if (sport) {
+                setSelectedSport(sport);
+                // Restore team
+                if (s.teamId) {
+                  const team = teams.find(tm=>tm.id===s.teamId);
+                  if (team) {
+                    setCurrentTeam(team);
+                    setRole(s.role||"viewer");
+                    setScreen(s.screen||"team");
+                    setTab(s.tab||"game");
+                    return;
+                  }
+                }
+                setScreen("teams");
+              }
+            }
+          }
+        } catch(e) { /* ignore */ }
+      }
     });
     return u;
   }, []);
@@ -750,7 +787,9 @@ export default function App() {
     await updateDoc(doc(db,"teams",currentTeam.id),{playerCount:(currentTeam.playerCount||0)+1});
   };
   const fbUpdatePlayer = async (id,data) => await updateDoc(doc(db,`teams/${currentTeam.id}/players`,id),data);
-  const fbDeletePlayer = async id => await deleteDoc(doc(db,`teams/${currentTeam.id}/players`,id));
+  // Soft delete — mark as deleted, keep data for stats
+  const fbDeletePlayer = async id => await updateDoc(doc(db,`teams/${currentTeam.id}/players`,id),{deleted:true,deletedAt:Date.now()});
+  const fbRestorePlayer = async id => await updateDoc(doc(db,`teams/${currentTeam.id}/players`,id),{deleted:false,deletedAt:null});
   const fbAddMatch = async data => {
     const id=uid();
     await setDoc(doc(db,`teams/${currentTeam.id}/matches`,id),{...data,id,createdAt:Date.now()});
@@ -759,6 +798,27 @@ export default function App() {
   const fbUpdateMatch = async (id,data) => await updateDoc(doc(db,`teams/${currentTeam.id}/matches`,id),data);
   const fbDeleteMatch = async id => await deleteDoc(doc(db,`teams/${currentTeam.id}/matches`,id));
   const fbSetDayLink = async (date,url) => await setDoc(doc(db,`teams/${currentTeam.id}/dayLinks`,date),{url});
+
+  // Save session to localStorage whenever key state changes
+  useEffect(() => {
+    if (loading) return;
+    try {
+      if (screen==="team" && currentTeam) {
+        localStorage.setItem("play2x2_session", JSON.stringify({
+          sportId: currentTeam.sport,
+          teamId: currentTeam.id,
+          role, screen, tab
+        }));
+      } else if (screen==="teams" && selectedSport) {
+        localStorage.setItem("play2x2_session", JSON.stringify({
+          sportId: selectedSport.id,
+          screen: "teams"
+        }));
+      } else if (screen==="sports") {
+        localStorage.removeItem("play2x2_session");
+      }
+    } catch(e) { /* ignore */ }
+  }, [screen, currentTeam, role, tab, selectedSport, loading]);
 
   const fbDeleteTeam = async (teamId) => {
     // Delete all subcollections then the team doc
@@ -807,10 +867,21 @@ export default function App() {
     setRole("viewer");
     setScreen("teams");
     setTab("game");
+    // Keep sport in session but clear team
+    try {
+      if (selectedSport) {
+        localStorage.setItem("play2x2_session", JSON.stringify({
+          sportId: selectedSport.id,
+          screen: "teams"
+        }));
+      }
+    } catch(e) {}
   };
 
   const pendingCount = matches.filter(m=>m.pending).length;
-  const sessionPlayers = players.filter(p=>sessionIds.includes(p.id));
+  const activePlrs = players.filter(p=>!p.deleted);
+  const deletedPlrs = players.filter(p=>p.deleted);
+  const sessionPlayers = activePlrs.filter(p=>sessionIds.includes(p.id));
   const toggleSession = id => setSessionIds(ids=>ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]);
 
   const setsStr = setsToString(sets);
@@ -845,12 +916,13 @@ export default function App() {
   const trophies = useMemo(()=>computeTrophies(players,matches),[players,matches]);
   // When filtering by day, only show players who actually played that day
   const activePlayers = useMemo(()=>{
-    if (dayFilter==="all") return players;
-    return players.filter(p=>{
+    const base = activePlrs; // exclude soft-deleted
+    if (dayFilter==="all") return base;
+    return base.filter(p=>{
       const s=stats[p.id];
       return s && s.games>0;
     });
-  },[players,stats,dayFilter]);
+  },[activePlrs,stats,dayFilter]);
 
   const sortedPlayers = useMemo(()=>[...activePlayers].sort((a,b)=>{
     const sa=stats[a.id]||{wins:0,games:0,scored:0,conceded:0};
@@ -1268,7 +1340,7 @@ export default function App() {
                 {!isCaptain&&<span style={{color:C.sub,fontWeight:400,marginLeft:6,fontSize:10}}>· {t.viewOnly}</span>}
               </div>
               <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
-                {players.map(p=>{
+                {activePlrs.map(p=>{
                   const on=sessionIds.includes(p.id);
                   return (
                     <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,
@@ -1427,11 +1499,30 @@ export default function App() {
             </button>
           </div>
 
-          {players.length>0&&(
+          {/* Deleted players — superadmin restore panel */}
+          {isSuperAdmin&&deletedPlrs.length>0&&(
+            <div style={{...cs,border:"1px solid #FF6B6B44",background:"#FF6B6B08"}}>
+              <div style={{...ls,color:C.red,marginBottom:10}}>🗑 {t.deletedPlayers} ({deletedPlrs.length})</div>
+              {deletedPlrs.map(p=>(
+                <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,
+                  background:C.cardHi,borderRadius:10,padding:"8px 12px",marginBottom:6,opacity:0.7}}>
+                  <Avatar player={p} size={34}/>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:13,fontWeight:700,color:C.sub}}>{p.name}</div>
+                    <div style={{fontSize:10,color:C.sub}}>удалён</div>
+                  </div>
+                  <button onClick={()=>fbRestorePlayer(p.id)}
+                    style={{...bs(C.green,true),fontSize:11}}>{t.restorePlayer}</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activePlrs.length>0&&(
             <div style={cs}>
               <div style={{...ls,marginBottom:10}}>{t.roster}</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:14}}>
-                {players.map(p=>(
+                {activePlrs.map(p=>(
                   <div key={p.id} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5,width:56}}>
                     <div style={{position:"relative"}}>
                       <Avatar player={p} size={46} onClick={isCaptain?()=>setPhotoPickerPlayer(p):undefined}/>
