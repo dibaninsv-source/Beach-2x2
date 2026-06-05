@@ -104,6 +104,7 @@ const LANG = {
     winRate:"побед", gamesLabel:(n)=>n===1?"игра":n<5?"игры":"игр",
     rankGames:"🏆 Games", rankGamesHint:"Кто больше выиграл игр",
     rankKing:"👑 King", rankKingHint:"Кто больше в ±очках",
+    rankPct:"📈 %", rankPctHint:"По проценту побед",
     period:"ПЕРИОД", periodHint:"· ℹ️ детали дня",
     noPlayers:"Добавь игроков на вкладке «Игра»",
     roster:"👥 СОСТАВ", trophyTitle:"🏆 Доска наград",
@@ -157,6 +158,7 @@ const LANG = {
     winRate:"uzvaras", gamesLabel:(n)=>n===1?"spēle":"spēles",
     rankGames:"🏆 Games", rankGamesHint:"Kurš uzvarēja vairāk",
     rankKing:"👑 King", rankKingHint:"Kurš labāks ±punktos",
+    rankPct:"📈 %", rankPctHint:"Pēc uzvaras procenta",
     period:"PERIODS", periodHint:"· ℹ️ detaļas",
     noPlayers:"Pievieno spēlētājus cilnē «Spēle»",
     roster:"👥 SASTĀVS", trophyTitle:"🏆 Apbalvojumi",
@@ -210,6 +212,7 @@ const LANG = {
     winRate:"wins", gamesLabel:(n)=>n===1?"game":"games",
     rankGames:"🏆 Games", rankGamesHint:"Who won most games",
     rankKing:"👑 King", rankKingHint:"Who has best ±points",
+    rankPct:"📈 %", rankPctHint:"By win percentage",
     period:"PERIOD", periodHint:"· ℹ️ day details",
     noPlayers:"Add players in the «Game» tab",
     roster:"👥 ROSTER", trophyTitle:"🏆 Trophy Board",
@@ -840,14 +843,31 @@ export default function App() {
   const filteredMatches = useMemo(()=>dayFilter==="all"?matches:matches.filter(m=>m.date===dayFilter),[matches,dayFilter]);
   const stats = useMemo(()=>computeStats(players,filteredMatches),[players,filteredMatches]);
   const trophies = useMemo(()=>computeTrophies(players,matches),[players,matches]);
-  const sortedPlayers = useMemo(()=>[...players].sort((a,b)=>{
+  // When filtering by day, only show players who actually played that day
+  const activePlayers = useMemo(()=>{
+    if (dayFilter==="all") return players;
+    return players.filter(p=>{
+      const s=stats[p.id];
+      return s && s.games>0;
+    });
+  },[players,stats,dayFilter]);
+
+  const sortedPlayers = useMemo(()=>[...activePlayers].sort((a,b)=>{
     const sa=stats[a.id]||{wins:0,games:0,scored:0,conceded:0};
     const sb=stats[b.id]||{wins:0,games:0,scored:0,conceded:0};
-    if (rankMode==="games"){if(sb.wins!==sa.wins)return sb.wins-sa.wins;return(sb.games?sb.wins/sb.games:0)-(sa.games?sa.wins/sa.games:0);}
+    if (rankMode==="games"){
+      if(sb.wins!==sa.wins) return sb.wins-sa.wins;
+      return (sb.games?sb.wins/sb.games:0)-(sa.games?sa.wins/sa.games:0);
+    }
+    if (rankMode==="pct"){
+      const pctA=sa.games?sa.wins/sa.games:0, pctB=sb.games?sb.wins/sb.games:0;
+      if(pctB!==pctA) return pctB-pctA;
+      return sb.wins-sa.wins;
+    }
     const da=sa.scored-sa.conceded,db=sb.scored-sb.conceded;
     return db!==da?db-da:sb.scored-sa.scored;
-  }),[players,stats,rankMode]);
-  const suggestions = useMemo(()=>generatePairings(sessionPlayers).slice(0,6),[sessionPlayers]);
+  }),[activePlayers,stats,rankMode]);
+  const suggestions = useMemo(()=>generatePairings(sessionPlayers),[sessionPlayers]);
   const pObj = id=>players.find(p=>p.id===id)||{name:"?",photo:null};
   const medal = i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${i+1}`;
   const tabStyle = on=>({flex:1,padding:"11px 0",border:"none",
@@ -1058,7 +1078,9 @@ export default function App() {
             })}
             <div style={{fontSize:11,color:C.sub,fontWeight:700,letterSpacing:1,marginTop:14,marginBottom:8}}>{t.dayResults}</div>
             {players.filter(p=>stats[p.id]?.games>0).sort((a,b)=>{
-              const da=stats[a.id].scored-stats[a.id].conceded,db=stats[b.id].scored-stats[b.id].conceded;return db-da;
+              const da=stats[a.id].scored-stats[a.id].conceded,db=stats[b.id].scored-stats[b.id].conceded;
+              if(db!==da) return db-da;
+              return stats[b.id].wins-stats[a.id].wins;
             }).map(p=>{
               const s=stats[p.id]; const diff=s.scored-s.conceded;
               return (
@@ -1273,7 +1295,10 @@ export default function App() {
 
           {suggestions.length>0&&(
             <div style={cs}>
-              <div style={ls}>{t.suggestions}</div>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                <div style={ls}>{t.suggestions}</div>
+                <div style={{fontSize:11,color:C.sub,fontWeight:600}}>{suggestions.length} вариантов</div>
+              </div>
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {suggestions.map(([a,b,c,d],i)=>(
                   <div key={i} onClick={()=>{setT1p1(a.id);setT1p2(b.id);setT2p1(c.id);setT2p2(d.id);}}
@@ -1430,7 +1455,7 @@ export default function App() {
         {tab==="stats"&&(<>
           <div style={{...cs,padding:"10px 12px"}}>
             <div style={{display:"flex",gap:6,marginBottom:10}}>
-              {[["games",t.rankGames,t.rankGamesHint,C.green],["king",t.rankKing,t.rankKingHint,C.king]].map(([mode,label,hint,ac])=>{
+              {[["games",t.rankGames,t.rankGamesHint,C.green],["king",t.rankKing,t.rankKingHint,C.king],["pct",t.rankPct,t.rankPctHint,"#00B4D8"]].map(([mode,label,hint,ac])=>{
                 const on=rankMode===mode;
                 return (
                   <div key={mode} onClick={()=>setRankMode(mode)} style={{
@@ -1489,8 +1514,9 @@ export default function App() {
             const diff=st.scored-st.conceded;
             const wr=st.games?Math.round(st.wins/st.games*100):0;
             const isKing=rankMode==="king";
-            const bigVal=isKing?(diff>=0?`+${diff}`:diff):st.wins;
-            const bigColor=isKing?(diff>0?C.king:diff<0?C.red:C.sub):C.green;
+            const isPct=rankMode==="pct";
+            const bigVal=isKing?(diff>=0?`+${diff}`:diff):isPct?`${wr}%`:st.wins;
+            const bigColor=isKing?(diff>0?C.king:diff<0?C.red:C.sub):isPct?"#00B4D8":C.green;
             const barPct=isKing?Math.min(100,Math.max(0,50+diff*3)):wr;
             const barColor=isKing?(diff>0?C.king:diff<0?C.red:C.sub):(wr>=60?C.green:wr>=40?C.sand:C.red);
             const tr=trophies[p.id]||{cups:0,crowns:0};
@@ -1517,7 +1543,7 @@ export default function App() {
                   </div>
                   <div style={{textAlign:"center",minWidth:54}}>
                     <div style={{fontSize:26,fontWeight:900,color:bigColor,lineHeight:1}}>{bigVal}</div>
-                    <div style={{fontSize:9,color:C.sub,letterSpacing:0.8,marginTop:3}}>{isKing?t.pm:t.wins}</div>
+                    <div style={{fontSize:9,color:C.sub,letterSpacing:0.8,marginTop:3}}>{isKing?t.pm:isPct?"%":t.wins}</div>
                   </div>
                 </div>
                 <div style={{display:"flex",justifyContent:"space-around",marginTop:12,
